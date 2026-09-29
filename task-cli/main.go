@@ -95,10 +95,17 @@ func truncateTaskDesc(s string, maxLen int) string {
 
 func parseArgs(line string) []string {
 
-	var args []string
+	// update 1 "some task"
+
+	// under assumption trimspace was called before on line
+
+	var argBuffer []string
+
+	cmdIdx := 0
+
 	fmt.Printf("[debug] %s %d\n", line, len(line))
 
-	// aaah good enough eh i expect nothing after string with quotes
+	// meh good enough eh i expect nothing after string with quotes
 	for i, c := range line {
 		// fmt.Printf("%c\n", character)
 		if c == '"' || c == '\'' || c == '`' {
@@ -107,11 +114,28 @@ func parseArgs(line string) []string {
 				log.Fatal(err)
 			}
 
-			fmt.Printf("desc of the task %s\n", desc)
+			unquoted, err := strconv.Unquote(desc)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("desc of the task %s\n", unquoted)
+			argBuffer = append(argBuffer, unquoted)
 			break
 
 		}
+		if c == ' ' {
+			argBuffer = append(argBuffer, line[cmdIdx:i])
+			cmdIdx = i + 1
+			continue
+		}
 	}
+
+	fmt.Println("These are final commands on the command buffer")
+	for i, val := range argBuffer {
+		fmt.Printf("%d %s %d\n", i, val, len(val))
+	}
+	fmt.Println(len(argBuffer))
 
 	// sampleCommand := `update 1 "some task"`
 
