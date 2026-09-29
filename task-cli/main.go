@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +22,7 @@ var (
 )
 
 type TaskStatus int
+type TaskBucket []Task
 
 const (
 	StateTodo TaskStatus = iota
@@ -36,19 +38,14 @@ type Task struct {
 	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
-func newTask(id *int, desc string, status TaskStatus) Task {
-	if *id == 0 {
-		*id++
-	}
-
+func newTask(id int, desc string) Task {
 	newTask := Task{
-		Id:          *id,
+		Id:          id,
 		Description: desc,
-		Status:      status,
+		Status:      StateTodo,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-	*id++
 	return newTask
 
 }
@@ -77,7 +74,7 @@ func (t Task) String() string {
 	// %-4d  -> left-align ID in 4 spaces
 	// %-11s -> left-align status string in 11 spaces (length of "IN-PROGRESS")
 	// %-20s -> left-align description in 20 spaces
-	return fmt.Sprintf("[#%-3d]  [%-11s]  %-28s  (%s)",
+	return fmt.Sprintf("[#%-3d]  [%-11s]  %-20s  (%s)",
 		t.Id,
 		t.statusString(),
 		desc,
@@ -95,7 +92,7 @@ func truncateTaskDesc(s string, maxLen int) string {
 
 func parseArgs(line string) []string {
 
-	// update 1 "some task"
+	// test case: update 1 "some task"
 
 	// under assumption trimspace was called before on line
 
@@ -103,7 +100,7 @@ func parseArgs(line string) []string {
 
 	cmdIdx := 0
 
-	fmt.Printf("[debug] %s %d\n", line, len(line))
+	// fmt.Printf("[debug] %s %d\n", line, len(line))
 
 	// meh good enough eh i expect nothing after string with quotes
 	for i, c := range line {
@@ -119,23 +116,32 @@ func parseArgs(line string) []string {
 				log.Fatal(err)
 			}
 
-			fmt.Printf("desc of the task %s\n", unquoted)
+			// fmt.Printf("desc of the task %s\n", unquoted)
 			argBuffer = append(argBuffer, unquoted)
 			break
 
 		}
 		if c == ' ' {
-			argBuffer = append(argBuffer, line[cmdIdx:i])
+			if i > cmdIdx {
+				argBuffer = append(argBuffer, line[cmdIdx:i])
+			}
 			cmdIdx = i + 1
 			continue
 		}
 	}
 
-	fmt.Println("These are final commands on the command buffer")
-	for i, val := range argBuffer {
-		fmt.Printf("%d %s %d\n", i, val, len(val))
+	if cmdIdx < len(line) {
+		remaining := line[cmdIdx:]
+		if len(remaining) > 0 {
+			argBuffer = append(argBuffer, remaining)
+		}
 	}
-	fmt.Println(len(argBuffer))
+
+	// fmt.Println("These are final commands on the command buffer")
+	// for i, val := range argBuffer {
+	// 	fmt.Printf("%d %s %d\n", i, val, len(val))
+	// }
+	// fmt.Println(len(argBuffer))
 
 	// sampleCommand := `update 1 "some task"`
 
@@ -146,10 +152,43 @@ func parseArgs(line string) []string {
 	// s, err := strconv.QuotedPrefix(sampleCommand)
 	// fmt.Printf("%q, %v\n", s, err)
 
-	return args
+	return argBuffer
+}
+
+func addTask(tasks *TaskBucket, desc string) *TaskBucket {
+
+	currentId := len(*tasks)
+	if currentId == 0 {
+		currentId = 1
+	}
+
+	createdNewTask := newTask(currentId, desc)
+
+	*tasks = append(*tasks, createdNewTask)
+
+	return tasks
+
+}
+
+func printTaskList(tasks TaskBucket, state *TaskStatus) {
+	if state != nil {
+		for _, task := range tasks {
+			if *state == task.Status {
+				fmt.Println(task)
+			}
+		}
+
+	} else {
+		for _, task := range tasks {
+			fmt.Println(task)
+		}
+	}
 }
 
 func main() {
+
+	// Create an empty task bucket
+	var taskBucket TaskBucket = make(TaskBucket, 0)
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -161,12 +200,80 @@ func main() {
 			break
 		}
 		line = strings.TrimSpace(line)
-		_ = parseArgs(line)
-	}
+		// fmt.Println("[debug] before line: ", line)
+		args := parseArgs(line)
+		// fmt.Println("[debug] arguments : ", args)
 
-	// Create an empty task bucket
-	// var taskBucket []Task = make([]Task, 0)
-	// noOfTasks := len(taskBucket)
+		rootCommand, rootOk := func() (string, bool) {
+			var rootCommand string
+			if len(args) > 0 {
+				rootCommand = args[0]
+				return rootCommand, true
+			}
+			return rootCommand, false
+		}()
+
+		if !rootOk {
+			fmt.Println("Please Enter a Command")
+			// print help page maybe
+		}
+
+		// subCommand could be an number index or filter for list
+		secondPosition, _ := func() (string, bool) {
+			var secondPosition string
+			if len(args) > 1 {
+				secondPosition = args[1]
+				return secondPosition, true
+
+			}
+			return secondPosition, false
+		}()
+
+		thirdPosition, _ := func() (string, bool) {
+			var thirdPosition string
+			if len(args) > 2 {
+				thirdPosition = args[2]
+				return thirdPosition, true
+			}
+			return thirdPosition, false
+		}()
+
+		_ = thirdPosition
+
+		switch rootCommand {
+		case "add":
+			if secondPosition != "" {
+				addTask(&taskBucket, secondPosition)
+			} else {
+				fmt.Println("No Task Has been given")
+			}
+		case "update":
+		case "delete":
+		case "mark-in-progress":
+		case "mark-done":
+		case "list":
+			switch secondPosition {
+			case "done":
+				status := StateDone
+				printTaskList(taskBucket, &status)
+			case "todo":
+				status := StateTodo
+				printTaskList(taskBucket, &status)
+			case "in-progress":
+				status := StateInProgress
+				printTaskList(taskBucket, &status)
+			default:
+				printTaskList(taskBucket, nil)
+			}
+		case "clear":
+			c := exec.Command("clear")
+			c.Stdout = os.Stdout
+			c.Run()
+		case "exit":
+			os.Exit(0)
+		}
+
+	}
 
 	// Add a new task to the bucket
 	// taskBucket = append(taskBucket, newTask(&noOfTasks, *newTaskPtr, StateTodo))
