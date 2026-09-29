@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -83,6 +85,7 @@ func (t Task) String() string {
 
 func truncateTaskDesc(s string, maxLen int) string {
 	if len(s) > maxLen {
+		// remove truncate string upto maxLen but minus 3 place taken by dots
 		return s[:maxLen-3] + "..."
 	}
 	return s
@@ -90,27 +93,51 @@ func truncateTaskDesc(s string, maxLen int) string {
 
 func main() {
 
-	newTaskPtr := flag.String("add", "empty task", "Add a new task")
-	InProgressPtr := flag.String("inprogress", "in progress task", "In Progress Task")
-	DoneTaskPtr := flag.String("done", "Task is Done", "Task is Done")
+	reader := bufio.NewReader(os.Stdin)
 
-	// TODO update/delete find the function for format flag input input
+	// Main repl loop
+	for {
+		fmt.Print("task-cli ")
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+		line = strings.TrimSpace(line)
+		fmt.Printf("[debug] %s %d\n", line, len(line))
+	}
 
-	// inProgressPtr := flag.String("mark-in-progres", 1, "To mark a Task to in progress")
+	// Create an empty task bucket
+	// var taskBucket []Task = make([]Task, 0)
+	// noOfTasks := len(taskBucket)
 
-	// listPtr := flag.String("list", "all", "List all the taks we have")
+	// Add a new task to the bucket
+	// taskBucket = append(taskBucket, newTask(&noOfTasks, *newTaskPtr, StateTodo))
 
-	flag.Parse()
+	// List all the tasks
+	// func(listCommand string) {
+	// 	switch listCommand {
+	//
+	// 	case "done":
+	//
+	// 	case "todo":
+	//
+	// 	case "in-progress":
+	//
+	// 	defaultf
+	// 		for task := range taskBucket {
+	// 			fmt.Println(taskBucket[task])
+	// 		}
+	// 	}
+	//
+	// }()
 
-	noOfTasks := 0
+	// flagTask := newTask(&noOfTasks, *newTaskPtr, StateTodo)
+	// InProgressTask := newTask(&noOfTasks, *InProgressPtr, StateInProgress)
+	// DoneTask := newTask(&noOfTasks, *DoneTaskPtr, StateDone)
 
-	flagTask := newTask(&noOfTasks, *newTaskPtr, StateTodo)
-	InProgressTask := newTask(&noOfTasks, *InProgressPtr, StateInProgress)
-	DoneTask := newTask(&noOfTasks, *DoneTaskPtr, StateDone)
-
-	fmt.Println(flagTask)
-	fmt.Println(InProgressTask)
-	fmt.Println(DoneTask)
+	// fmt.Println(flagTask)
+	// fmt.Println(InProgressTask)
+	// fmt.Println(DoneTask)
 
 	// flagTaskJson, _ := json.Marshal(flagTask)
 	// fmt.Println(string(flagTaskJson))
