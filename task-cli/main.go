@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -91,6 +93,38 @@ func truncateTaskDesc(s string, maxLen int) string {
 	return s
 }
 
+func parseArgs(line string) []string {
+
+	var args []string
+	fmt.Printf("[debug] %s %d\n", line, len(line))
+
+	// aaah good enough eh i expect nothing after string with quotes
+	for i, c := range line {
+		// fmt.Printf("%c\n", character)
+		if c == '"' || c == '\'' || c == '`' {
+			desc, err := strconv.QuotedPrefix(line[i:])
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("desc of the task %s\n", desc)
+			break
+
+		}
+	}
+
+	// sampleCommand := `update 1 "some task"`
+
+	// for i := 0; i < len(sampleCommand); i++ {
+	// 	fmt.Printf("%c\n", sampleCommand[i])
+	// }
+
+	// s, err := strconv.QuotedPrefix(sampleCommand)
+	// fmt.Printf("%q, %v\n", s, err)
+
+	return args
+}
+
 func main() {
 
 	reader := bufio.NewReader(os.Stdin)
@@ -103,7 +137,7 @@ func main() {
 			break
 		}
 		line = strings.TrimSpace(line)
-		fmt.Printf("[debug] %s %d\n", line, len(line))
+		_ = parseArgs(line)
 	}
 
 	// Create an empty task bucket
