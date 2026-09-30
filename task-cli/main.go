@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -211,8 +212,39 @@ func changeTaskStatus(tasks *TaskBucket, id *int, state *TaskStatus) (*Task, boo
 
 }
 
-func updateTask(tasks *TaskBucket, id *int, desc string) (*Task, bool) {
+func updateTask(tasks *TaskBucket, id *string, desc *string) (*Task, bool) {
 
+	idx, _ := strconv.Atoi(*id)
+
+	if desc == nil {
+		fmt.Println("No input description")
+		panic("no description input")
+	}
+
+	if idx <= 0 {
+		fmt.Println("invalid id")
+	}
+
+	for i := range *tasks {
+		if i == idx-1 {
+			(*tasks)[i].Description = *desc
+			return &(*tasks)[i], true
+		}
+	}
+	return nil, false
+
+}
+
+func deleteTask(tasks TaskBucket, idStrPtr *string) (TaskBucket, Task, bool) {
+	id, _ := strconv.Atoi(*idStrPtr)
+
+	idx := id - 1
+
+	deletedTask := tasks[idx]
+
+	tasks = slices.Delete(tasks, idx, idx+1)
+
+	return tasks, deletedTask, true
 }
 
 func main() {
@@ -268,9 +300,8 @@ func main() {
 			return thirdPosition, false
 		}()
 
-		_ = thirdPosition
-
 		switch rootCommand {
+
 		case "add":
 			if secondPosition != "" {
 				addTask(&taskBucket, secondPosition)
@@ -278,7 +309,21 @@ func main() {
 				fmt.Println("No Task Has been given")
 			}
 		case "update":
+			task, ok := updateTask(&taskBucket, &secondPosition, &thirdPosition)
+			if !ok {
+				fmt.Println("Failed to update, Task Do not exist")
+			} else {
+				fmt.Println("Task Updated successfully")
+				fmt.Println(task)
+			}
 		case "delete":
+			var task Task
+			var ok bool
+			taskBucket, task, ok = deleteTask(taskBucket, &secondPosition)
+			if ok {
+				fmt.Println("Task Deleted successfully")
+				fmt.Println(task)
+			}
 		case "mark-in-progress":
 			idx, _ := strconv.Atoi(secondPosition)
 			status := StateInProgress
