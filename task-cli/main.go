@@ -386,6 +386,18 @@ func main() {
 			}
 			continuousPersist(taskBucket)
 
+		case "mark-todo":
+			idx, _ := strconv.Atoi(secondPosition)
+			status := StateTodo
+			task, ok := changeTaskStatus(&taskBucket, &idx, &status)
+			if !ok {
+				fmt.Println("Failed to change state, Task Do not exist")
+			} else {
+				fmt.Println("Status changed successfully for task")
+				fmt.Println(task)
+			}
+			continuousPersist(taskBucket)
+
 		case "mark-in-progress":
 			idx, _ := strconv.Atoi(secondPosition)
 			status := StateInProgress
