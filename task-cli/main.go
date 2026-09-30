@@ -73,7 +73,7 @@ func (t Task) String() string {
 		ts = t.CreatedAt.Format("Jan 02 15:04")
 	}
 
-	desc := truncateTaskDesc(t.Description, 28)
+	desc := truncateTaskDesc(t.Description, 20)
 
 	// %-4d  -> left-align ID in 4 spaces
 	// %-11s -> left-align status string in 11 spaces (length of "IN-PROGRESS")
