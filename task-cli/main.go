@@ -158,12 +158,19 @@ func parseArgs(line string) []string {
 
 func addTask(tasks *TaskBucket, desc string) *TaskBucket {
 
-	currentId := len(*tasks)
-	if currentId == 0 {
-		currentId = 1
-	}
+	// Don't rely on lenght of the slice for id's
+	nextId := func(tasks TaskBucket) int {
+		maxId := 0
+		for _, t := range tasks {
+			if t.Id > maxId {
+				maxId = t.Id
+			}
+		}
+		return maxId + 1
 
-	createdNewTask := newTask(currentId, desc)
+	}(*tasks)
+
+	createdNewTask := newTask(nextId, desc)
 
 	*tasks = append(*tasks, createdNewTask)
 
@@ -246,6 +253,10 @@ func deleteTask(tasks TaskBucket, idStrPtr *string) (TaskBucket, Task, bool) {
 
 	return tasks, deletedTask, true
 }
+
+// func persist(tasks *TaskBucket) {
+//
+// }
 
 func main() {
 
@@ -346,7 +357,7 @@ func main() {
 				fmt.Println(task)
 			}
 
-		case "list":
+		case "list", "ls":
 			switch secondPosition {
 			case "done":
 				status := StateDone
