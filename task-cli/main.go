@@ -212,8 +212,8 @@ func changeTaskStatus(tasks *TaskBucket, id *int, state *TaskStatus) (*Task, boo
 		fmt.Println("invalid id")
 	}
 
-	for i := range *tasks {
-		if i == *id-1 {
+	for i, t := range *tasks {
+		if t.Id == *id {
 			(*tasks)[i].Status = *state
 			return &(*tasks)[i], true
 		}
@@ -235,8 +235,8 @@ func updateTask(tasks *TaskBucket, id *string, desc *string) (*Task, bool) {
 		fmt.Println("invalid id")
 	}
 
-	for i := range *tasks {
-		if i == idx-1 {
+	for i, t := range *tasks {
+		if t.Id == idx {
 			(*tasks)[i].Description = *desc
 			return &(*tasks)[i], true
 		}
@@ -246,15 +246,20 @@ func updateTask(tasks *TaskBucket, id *string, desc *string) (*Task, bool) {
 }
 
 func deleteTask(tasks TaskBucket, idStrPtr *string) (TaskBucket, Task, bool) {
-	id, _ := strconv.Atoi(*idStrPtr)
 
-	idx := id - 1
+	id, _ := strconv.Atoi(*idStrPtr)
+	idx := 0
+
+	for i, t := range tasks {
+		if t.Id == id {
+			idx = i
+		}
+	}
 
 	deletedTask := tasks[idx]
-
 	tasks = slices.Delete(tasks, idx, idx+1)
-
 	return tasks, deletedTask, true
+
 }
 
 func continuousPersist(tasks TaskBucket) {
@@ -274,6 +279,8 @@ func continuousPersist(tasks TaskBucket) {
 	if err != nil {
 		log.Fatal("file encoding errr ", err)
 	}
+
+	// research write-to-temp then Rename pattern
 
 }
 
