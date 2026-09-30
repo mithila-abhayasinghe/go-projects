@@ -215,6 +215,7 @@ func changeTaskStatus(tasks *TaskBucket, id *int, state *TaskStatus) (*Task, boo
 	for i, t := range *tasks {
 		if t.Id == *id {
 			(*tasks)[i].Status = *state
+			(*tasks)[i].UpdatedAt = time.Now()
 			return &(*tasks)[i], true
 		}
 	}
@@ -238,6 +239,7 @@ func updateTask(tasks *TaskBucket, id *string, desc *string) (*Task, bool) {
 	for i, t := range *tasks {
 		if t.Id == idx {
 			(*tasks)[i].Description = *desc
+			(*tasks)[i].UpdatedAt = time.Now()
 			return &(*tasks)[i], true
 		}
 	}
