@@ -185,6 +185,36 @@ func printTaskList(tasks TaskBucket, state *TaskStatus) {
 	}
 }
 
+func changeTaskStatus(tasks *TaskBucket, id *int, state *TaskStatus) (*Task, bool) {
+
+	if id == nil {
+		fmt.Println("Id is missing")
+		panic("id is missing")
+	}
+
+	if state == nil {
+		fmt.Println("Status is missing")
+		panic("missing state")
+	}
+
+	if *id <= 0 {
+		fmt.Println("invalid id")
+	}
+
+	for i := range *tasks {
+		if i == *id-1 {
+			(*tasks)[i].Status = *state
+			return &(*tasks)[i], true
+		}
+	}
+	return nil, false
+
+}
+
+func updateTask(tasks *TaskBucket, id *int, desc string) (*Task, bool) {
+
+}
+
 func main() {
 
 	// Create an empty task bucket
@@ -250,7 +280,27 @@ func main() {
 		case "update":
 		case "delete":
 		case "mark-in-progress":
+			idx, _ := strconv.Atoi(secondPosition)
+			status := StateInProgress
+			task, ok := changeTaskStatus(&taskBucket, &idx, &status)
+			if !ok {
+				fmt.Println("Failed to change state, Task Do not exist")
+			} else {
+				fmt.Println("Status changed successfully for task")
+				fmt.Println(task)
+			}
+
 		case "mark-done":
+			idx, _ := strconv.Atoi(secondPosition)
+			status := StateDone
+			task, ok := changeTaskStatus(&taskBucket, &idx, &status)
+			if !ok {
+				fmt.Println("Failed to change state, Task Do not exist")
+			} else {
+				fmt.Println("Status changed successfully for task")
+				fmt.Println(task)
+			}
+
 		case "list":
 			switch secondPosition {
 			case "done":
