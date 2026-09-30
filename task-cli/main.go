@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -14,7 +16,8 @@ import (
 	"time"
 )
 
-// Get this fucking warnings out of here
+// Get this warnings out of here
+// insert robert pattinson odyssey meme
 var (
 	_ = json.Marshal
 	_ = os.Stdout
@@ -254,14 +257,56 @@ func deleteTask(tasks TaskBucket, idStrPtr *string) (TaskBucket, Task, bool) {
 	return tasks, deletedTask, true
 }
 
-// func persist(tasks *TaskBucket) {
-//
-// }
+func continuousPersist(tasks TaskBucket) {
+	filepath := "tasklist.json"
+
+	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatal("file reading error ", err)
+	}
+
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+
+	err = encoder.Encode(tasks)
+
+	if err != nil {
+		log.Fatal("file encoding errr ", err)
+	}
+
+}
+
+func loadPersistedTasks() TaskBucket {
+	var taskBucket TaskBucket
+	filepath := "tasklist.json"
+
+	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_RDONLY, 0644)
+	if err != nil {
+		log.Fatal("file reading error ", err)
+	}
+
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&taskBucket)
+	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return TaskBucket{}
+		}
+		log.Fatal("json decoding err ", err)
+	}
+
+	return taskBucket
+}
 
 func main() {
 
 	// Create an empty task bucket
 	var taskBucket TaskBucket = make(TaskBucket, 0)
+
+	// load once
+	taskBucket = loadPersistedTasks()
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -319,6 +364,8 @@ func main() {
 			} else {
 				fmt.Println("No Task Has been given")
 			}
+			continuousPersist(taskBucket)
+
 		case "update":
 			task, ok := updateTask(&taskBucket, &secondPosition, &thirdPosition)
 			if !ok {
@@ -327,6 +374,8 @@ func main() {
 				fmt.Println("Task Updated successfully")
 				fmt.Println(task)
 			}
+			continuousPersist(taskBucket)
+
 		case "delete":
 			var task Task
 			var ok bool
@@ -335,6 +384,8 @@ func main() {
 				fmt.Println("Task Deleted successfully")
 				fmt.Println(task)
 			}
+			continuousPersist(taskBucket)
+
 		case "mark-in-progress":
 			idx, _ := strconv.Atoi(secondPosition)
 			status := StateInProgress
@@ -345,6 +396,7 @@ func main() {
 				fmt.Println("Status changed successfully for task")
 				fmt.Println(task)
 			}
+			continuousPersist(taskBucket)
 
 		case "mark-done":
 			idx, _ := strconv.Atoi(secondPosition)
@@ -356,9 +408,12 @@ func main() {
 				fmt.Println("Status changed successfully for task")
 				fmt.Println(task)
 			}
+			continuousPersist(taskBucket)
 
 		case "list", "ls":
+
 			switch secondPosition {
+
 			case "done":
 				status := StateDone
 				printTaskList(taskBucket, &status)
@@ -371,11 +426,13 @@ func main() {
 			default:
 				printTaskList(taskBucket, nil)
 			}
+
 		case "clear":
 			c := exec.Command("clear")
 			c.Stdout = os.Stdout
 			c.Run()
-		case "exit":
+
+		case "exit", "e":
 			os.Exit(0)
 		}
 
