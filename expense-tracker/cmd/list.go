@@ -5,7 +5,8 @@ Copyright © 2026 Mithila Abhayasinghe
 package cmd
 
 import (
-	"fmt"
+	"expense-tracker/internal"
+
 	"github.com/spf13/cobra"
 )
 
@@ -15,12 +16,7 @@ var listCmd = &cobra.Command{
 	Short: "list all expenses",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
-		if verbose {
-			fmt.Println("Verbose called")
-		} else {
-			fmt.Println("Verbose was not called")
-		}
+		internal.ListExpense()
 	},
 }
 

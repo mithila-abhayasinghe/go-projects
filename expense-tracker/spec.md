@@ -21,5 +21,5 @@
 > $ expense-tracker summary --month 8
 >  Total expenses for August: $20
 
-> $ expense-tracker update --id 1 --description "Updated expense"
+> $ expense-tracker update --id 1 --description "Updated expense" --amount 10
 >  Expense updated successfully (ID: 1)

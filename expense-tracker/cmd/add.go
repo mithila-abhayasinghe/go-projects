@@ -5,6 +5,9 @@ Copyright © 2026 Mithila Abhayasinghe
 package cmd
 
 import (
+	"expense-tracker/internal"
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +21,13 @@ var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "add an expense",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		exp, err := internal.AddExpense(description, amount)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Expense added successfully (ID: %d)\n", exp.Id)
+		return nil
 	},
 }
 

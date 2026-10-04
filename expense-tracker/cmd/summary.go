@@ -5,7 +5,8 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"expense-tracker/internal"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,9 +17,12 @@ var summaryCmd = &cobra.Command{
 	Use:   "summary",
 	Short: "shows the total expenses",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("summary called")
-		fmt.Printf("Summary of month: %d\n", month)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		err := internal.SummaryExpense(month)
+		if err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
