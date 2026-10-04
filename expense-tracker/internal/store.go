@@ -26,6 +26,17 @@ func SummaryExpense() {
 	fmt.Println("Summary Called")
 }
 
+func nextId() int {
+	currentId := 0
+	for _, exp := range MemStore {
+		if exp.Id > currentId {
+			currentId = exp.Id
+		}
+	}
+	// remember to return + 1
+	return currentId + 1
+}
+
 func csvPersist() {
 	fmt.Println("CSV Written")
 }
