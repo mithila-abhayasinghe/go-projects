@@ -25,7 +25,7 @@ func NewExpense(id int, desc string, amount float64) Expense {
 
 func (e Expense) String() string {
 
-	return fmt.Sprintf("# %-4d %-12s %-14s $%-g",
+	return fmt.Sprintf("# %-4d %-12s %-14s Rs.%-g",
 		e.Id,
 		e.Date.Format("2006-01-02"),
 		e.Description,
