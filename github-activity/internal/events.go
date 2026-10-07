@@ -48,32 +48,34 @@ func (e GitHubEvent) String() string {
 	repo := e.Repo.Name
 	ref := strings.TrimPrefix(e.Payload.Ref, "refs/heads/")
 
+	timeStamp := e.CreatedAt.Format("2006-01-02")
+
 	switch e.Type {
 
 	case "PushEvent":
-		return fmt.Sprintf("- Pushed to repo: %s branch: %s by user: %s", repo, ref, actor)
+		return fmt.Sprintf("- Pushed to repo: %s branch: %s by user: %s at: %s", repo, ref, actor, timeStamp)
 	case "PullRequestEvent":
-		return fmt.Sprintf("- Pull Request: %s", repo)
+		return fmt.Sprintf("- Pull Request: %s at: %s", repo, timeStamp)
 	case "IssuesEvent":
-		return fmt.Sprintf("- Issue in repo: %s", repo)
+		return fmt.Sprintf("- Issue in repo: %s at: %s", repo, timeStamp)
 	case "WatchEvent":
 		if e.Payload.Action == "started" {
-			return fmt.Sprintf("- User: %s just starred repo: %s", actor, repo)
+			return fmt.Sprintf("- User: %s just starred repo: %s at: %s", actor, repo, timeStamp)
 		}
 	case "CreateEvent":
 		if e.Payload.RefType == "repository" {
-			return fmt.Sprintf("- Created repository %s", repo)
+			return fmt.Sprintf("- Created repository %s at: %s", repo, timeStamp)
 		}
 		if e.Payload.RefType != "" && ref != "" {
-			return fmt.Sprintf("- Created %s '%s' in %s", e.Payload.RefType, ref, repo)
+			return fmt.Sprintf("- Created %s '%s' in %s at: %s", e.Payload.RefType, ref, repo, timeStamp)
 		}
-		return fmt.Sprintf("- Created a new resource in %s", repo)
+		return fmt.Sprintf("- Created a new resource in %s at: %s", repo, timeStamp)
 	case "PublicEvent":
-		return fmt.Sprintf("- The Repo: %s was made public by user: %s", repo, actor)
+		return fmt.Sprintf("- The Repo: %s was made public by user: %s at: %s", repo, actor, timeStamp)
 	case "DeleteEvent":
-		return fmt.Sprintf("- Deleted %s: %s in repo: %s", e.Payload.RefType, ref, repo)
+		return fmt.Sprintf("- Deleted %s: %s in repo: %s at: %s", e.Payload.RefType, ref, repo, timeStamp)
 	}
 
-	return fmt.Sprintf("-[u] %s in %s", e.Type, repo)
+	return fmt.Sprintf("-[u] %s in %s at: %s", e.Type, repo, timeStamp)
 
 }

@@ -14,7 +14,7 @@ func FetchPublicRecordsByUser(uname string) {
 	// api endpoint
 	// https://api.github.com/users/kamranahmedse/events
 
-	prod := false
+	prod := true
 
 	var events []GitHubEvent
 
