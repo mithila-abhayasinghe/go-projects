@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"github-activity/internal"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,7 +15,6 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "github-activity <username>",
 	Short: "Use GitHub API to fetch user activity and display it in the terminal",
-	Long:  ``,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 1 {
 			return fmt.Errorf("a single GitHub username is required (e.g. github-activity torvalds)")
@@ -22,7 +22,10 @@ var rootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args[0])
+		uname := args[0]
+		// resp := internal.FetchPublicRecordsByUser(uname)
+		// fmt.Println(resp)
+		internal.FetchPublicRecordsByUser(uname)
 	},
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,

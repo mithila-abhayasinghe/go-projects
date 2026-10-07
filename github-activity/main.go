@@ -1,6 +1,5 @@
 /*
 Copyright © 2026 Mithila Abhayasinghe
-
 */
 package main
 
