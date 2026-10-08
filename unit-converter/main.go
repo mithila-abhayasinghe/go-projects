@@ -9,11 +9,6 @@ import (
 	unit "unit-converter/internal"
 )
 
-var (
-	_ = fmt.Println
-	_ = unit.Convert
-)
-
 func main() {
 
 	// Examples
@@ -36,7 +31,7 @@ type PageData struct {
 	Result  float64
 }
 
-var tmpl = template.Must(template.ParseFiles("views/form.html"))
+var tmpl = template.Must(template.ParseFiles("views/converter.html"))
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("[Debug] - Method ", r.Method)
