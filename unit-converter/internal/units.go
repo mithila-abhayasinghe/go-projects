@@ -3,7 +3,7 @@ package internal
 type Unit string
 
 const (
-	// Lenght Units
+	// Length Units
 	Millimeter Unit = "millimeter"
 	Centimeter Unit = "centimeter"
 	Meter      Unit = "meter"
@@ -25,6 +25,28 @@ const (
 	Celsius    Unit = "celsius"
 	Fahrenheit Unit = "fahrenheit"
 )
+
+func GetUnitName(str string) Unit {
+	lookupTable := map[string]Unit{
+		"mm":    Millimeter,
+		"cm":    Centimeter,
+		"m":     Meter,
+		"km":    Kilometer,
+		"inch":  Inch,
+		"ft":    Foot,
+		"yard":  Yard,
+		"miles": Mile,
+		"mg":    Milligram,
+		"gm":    Gram,
+		"kg":    Kilogram,
+		"ounce": Ounce,
+		"lbs":   Pound,
+		"K":     Kelvin,
+		"C":     Celsius,
+		"F":     Fahrenheit,
+	}
+	return lookupTable[str]
+}
 
 type UnitData struct {
 	Name        string
@@ -53,7 +75,7 @@ var SupportedUnits = map[Unit]UnitData{
 	Pound:     {Name: "Pound", Symbol: "lb", Dimension: "weight", ToBaseRatio: 0.45359237},
 }
 
-func Get(name Unit) UnitData {
+func GetUnitData(name Unit) UnitData {
 	return SupportedUnits[name]
 }
 

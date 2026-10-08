@@ -1,0 +1,20 @@
+{{if .Success}}
+
+<h1>Result of your calculation</h1>
+<p>{{.Result}}</p>
+<form method="POST">
+	<button type="submit" name="action" value="reset">Reset</button>
+</form>
+
+{{else}}
+<h1>Unit Converter</h1>
+<form method="POST">
+	<label>Enter the value to convert</label><br />
+	<input type="number" name="fromValue"><br><br>
+	<label>Unit to Convert from</label><br>
+	<input type="text" name="from"><br><br>
+	<label>Unit to Convert to</label><br />
+	<input type="text" name="to"><br><br>
+	<button type="submit" name="action" value="convert">Submit</button>
+</form>
+{{end}}
