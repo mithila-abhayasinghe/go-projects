@@ -1,4 +1,4 @@
-# Go CLI Projects 
+# Go Projects 
 
 A small collection of projects I built to practise Golang (crafted by hand)
 
